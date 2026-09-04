@@ -1,10 +1,14 @@
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from urllib.parse import quote_plus
 
-password = quote_plus("Namish@27$")
-DATABASE_URL = f"postgresql://postgres:{password}@localhost:5432/microguard"
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not DATABASE_URL:
+    password = quote_plus("Namish@27$")
+    DATABASE_URL = f"postgresql://postgres:{password}@localhost:5432/microguard"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

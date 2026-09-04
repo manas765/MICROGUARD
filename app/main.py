@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import auth, business, loans
@@ -21,8 +23,8 @@ app.include_router(loans.router)
 
 @app.get("/setup/create-tables")
 def setup_create_tables():
-    Base.metadata.create_all(bind=engine)
-    return {"message": "Tables created successfully"}
+    db_url = os.getenv("DATABASE_URL")
+    return {"database_url_seen": db_url}
 
 
 @app.get("/")
