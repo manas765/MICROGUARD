@@ -20,11 +20,10 @@ app.include_router(auth.router)
 app.include_router(business.router)
 app.include_router(loans.router)
 
-
 @app.get("/setup/create-tables")
 def setup_create_tables():
-    db_url = os.getenv("DATABASE_URL")
-    return {"database_url_seen": db_url}
+    Base.metadata.create_all(bind=engine)
+    return {"message": "Tables created successfully"}
 
 
 @app.get("/")
