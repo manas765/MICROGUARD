@@ -12,7 +12,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
-        "https://frontend-vibr.vercel.app"
+        "https://frontend-peach-kappa-26.vercel.app"
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -23,10 +23,11 @@ app.include_router(auth.router)
 app.include_router(business.router)
 app.include_router(loans.router)
 
-@app.get("/setup/create-tables")
-def setup_create_tables():
+@app.get("/setup/reset-tables")
+def reset_tables():
+    Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
-    return {"message": "Tables created successfully"}
+    return {"message": "Tables reset successfully"}
 
 
 @app.get("/")
