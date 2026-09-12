@@ -2,7 +2,15 @@ import { useState } from "react";
 import axios from "axios";
 
 function Signup() {
-  const [form, setForm] = useState({ name: "", email: "", password: "", role: "borrower" });
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "borrower",
+    age: "",
+    gender: "male",
+    education: "college",
+  });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -16,7 +24,10 @@ function Signup() {
     setError("");
     setLoading(true);
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/auth/signup`, form);
+      await axios.post(`${import.meta.env.VITE_API_URL}/auth/signup`, {
+        ...form,
+        age: Number(form.age),
+      });
       setSuccess(true);
     } catch (err) {
       setError(err.response?.data?.detail || "Something went wrong. Please try again.");
@@ -69,8 +80,8 @@ function Signup() {
               <p className="text-gray-500 mb-6">
                 You can now log in with your new account.
               </p>
-              
-                 <a             
+
+                 <a
                 href="/"
                 className="inline-block bg-indigo-900 hover:bg-indigo-800 text-white font-medium py-2.5 px-6 rounded-lg transition"
               >
@@ -129,6 +140,54 @@ function Signup() {
                     required
                     className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition"
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Age
+                  </label>
+                  <input
+                    type="number"
+                    name="age"
+                    value={form.age}
+                    onChange={handleChange}
+                    placeholder="30"
+                    min="18"
+                    required
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Gender
+                  </label>
+                  <select
+                    name="gender"
+                    value={form.gender}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition bg-white"
+                  >
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Highest education
+                  </label>
+                  <select
+                    name="education"
+                    value={form.education}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition bg-white"
+                  >
+                    <option value="High School or Below">High School or Below</option>
+                    <option value="college">College</option>
+                    <option value="Bachelor Degree">Bachelor Degree</option>
+                    <option value="Master or Above">Master or Above</option>
+                  </select>
                 </div>
 
                 <div>

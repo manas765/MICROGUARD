@@ -11,7 +11,10 @@ class User(Base):
     name = Column(String, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
-    role = Column(String, default="borrower")  # borrower, loan_officer, admin
+    role = Column(String, default="borrower")  
+    age = Column(Integer, nullable=True)
+    gender = Column(String, nullable=True)
+    education = Column(String, nullable=True)# borrower, loan_officer, admin
     created_at = Column(DateTime, default=datetime.utcnow)
 
     business_profile = relationship("BusinessProfile", back_populates="owner", uselist=False)
@@ -38,6 +41,8 @@ class LoanApplication(Base):
     business_profile_id = Column(Integer, ForeignKey("business_profiles.id"), nullable=False)
     requested_amount = Column(Float, nullable=False)
     purpose = Column(String, nullable=True)
+    term_days = Column(Integer, nullable=False)
+    has_guarantor = Column(Boolean, default=False)
     status = Column(String, default="pending")  # pending, approved, rejected
     risk_score = Column(Float, nullable=True)
     applied_at = Column(DateTime, default=datetime.utcnow)

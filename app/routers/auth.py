@@ -14,6 +14,9 @@ class SignupRequest(BaseModel):
     email: EmailStr
     password: str
     role: str = "borrower"
+    age: int
+    gender: str
+    education: str
 
 
 class LoginRequest(BaseModel):
@@ -32,6 +35,9 @@ def signup(request: SignupRequest, db: Session = Depends(get_db)):
         email=request.email,
         hashed_password=hash_password(request.password),
         role=request.role,
+        age=request.age,
+        gender=request.gender,
+        education=request.education
     )
     db.add(new_user)
     db.commit()

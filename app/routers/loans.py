@@ -13,6 +13,8 @@ router = APIRouter(prefix="/loans", tags=["loans"])
 class LoanApplicationRequest(BaseModel):
     requested_amount: float
     purpose: str
+    term_days: int
+    has_guarantor: bool = False
 
 
 class LoanApplicationResponse(BaseModel):
@@ -20,6 +22,8 @@ class LoanApplicationResponse(BaseModel):
     requested_amount: float
     purpose: str
     status: str
+    term_days: int
+    has_guarantor: bool
     risk_score: float | None
 
     class Config:
@@ -40,6 +44,8 @@ def apply_for_loan(
         business_profile_id=profile.id,
         requested_amount=request.requested_amount,
         purpose=request.purpose,
+        term_days=request.term_days,
+        has_guarantor=request.has_guarantor,
     )
     db.add(application)
     db.commit()
