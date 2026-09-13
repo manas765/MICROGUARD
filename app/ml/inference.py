@@ -23,6 +23,8 @@ with open(os.path.join(ARTIFACT_DIR, "metadata.json")) as f:
 
 FEATURE_COLUMNS = _metadata["feature_columns"]
 MODEL_VERSION = _metadata["trained_at"]
+EDUCATION_ORDER = _metadata["education_order"]
+VALID_GENDERS = {"male", "female"}
 
 FEATURE_LABELS = {
     "requested_amount": "the requested loan amount",
@@ -92,6 +94,33 @@ def _plain_language_reasons(shap_values: np.ndarray, feature_names: list, row: d
     return reasons
 
 
+def _sanitize_inputs(age, gender: str, education: str) -> tuple[dict, bool]:
+    """Guards against values the model was never trained on — most
+    likely from data entered before validation was added, or from
+    direct API calls that bypass the frontend's dropdowns. Falls back
+    to a safe default and reports it via the fallback_used flag rather
+    than crashing the whole request with a 500."""
+    fallback_used = False
+
+    gender_clean = (gender or "").strip().lower()
+    if gender_clean not in VALID_GENDERS:
+        gender_clean = "male"  # majority class in training data
+        fallback_used = True
+
+    education_clean = (education or "").strip()
+    matched = next((e for e in EDUCATION_ORDER if e.lower() == education_clean.lower()), None)
+    if matched is None:
+        matched = "college"  # most common category in training data
+        fallback_used = True
+
+    age_clean = age
+    if age_clean is None or age_clean < 0:
+        age_clean = 30  # median-ish age in training data
+        fallback_used = True
+
+    return {"age": age_clean, "gender": gender_clean, "education": matched}, fallback_used
+
+
 def score_application(
     requested_amount: float,
     term_days: int,
@@ -104,12 +133,14 @@ def score_application(
     a confidence level, and plain-language reasons for the score."""
     import pandas as pd
 
+    clean, fallback_used = _sanitize_inputs(age, gender, education)
+
     row = {
         "requested_amount": requested_amount,
         "term_days": term_days,
-        "age": age,
-        "gender": gender.lower(),
-        "education": education,
+        "age": clean["age"],
+        "gender": clean["gender"],
+        "education": clean["education"],
         "has_guarantor": int(has_guarantor),
     }
     X = pd.DataFrame([row])[FEATURE_COLUMNS]
@@ -124,10 +155,15 @@ def score_application(
     shap_values = _explainer.shap_values(X_transformed)
     reasons = _plain_language_reasons(shap_values[0], feature_names, row)
 
+    confidence = _confidence(row)
+    if fallback_used:
+        confidence = "low"
+        reasons.insert(0, "Some profile details were missing or unrecognized, so this score used default assumptions")
+
     return {
         "risk_score": score,
         "risk_band": _risk_band(score),
-        "confidence": _confidence(row),
+        "confidence": confidence,
         "reasons": reasons,
         "model_version": MODEL_VERSION,
     }

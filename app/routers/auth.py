@@ -1,3 +1,5 @@
+from typing import Literal
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
@@ -15,8 +17,8 @@ class SignupRequest(BaseModel):
     password: str
     role: str = "borrower"
     age: int
-    gender: str
-    education: str
+    gender: Literal["male", "female"]
+    education: Literal["High School or Below", "college", "Bachelor Degree", "Master or Above"]
 
 
 class LoginRequest(BaseModel):
