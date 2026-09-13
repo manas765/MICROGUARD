@@ -11,10 +11,10 @@ class User(Base):
     name = Column(String, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
-    role = Column(String, default="borrower")  
+    role = Column(String, default="borrower")  # borrower, loan_officer, admin
     age = Column(Integer, nullable=True)
     gender = Column(String, nullable=True)
-    education = Column(String, nullable=True)# borrower, loan_officer, admin
+    education = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     business_profile = relationship("BusinessProfile", back_populates="owner", uselist=False)
@@ -45,6 +45,10 @@ class LoanApplication(Base):
     has_guarantor = Column(Boolean, default=False)
     status = Column(String, default="pending")  # pending, approved, rejected
     risk_score = Column(Float, nullable=True)
+    risk_band = Column(String, nullable=True)  # Low, Medium, High
+    risk_reasons = Column(String, nullable=True)  # JSON-encoded list of plain-language reasons
+    risk_confidence = Column(String, nullable=True)  # low, medium, high
+    model_version = Column(String, nullable=True)  # timestamp of the model that produced this score
     applied_at = Column(DateTime, default=datetime.utcnow)
 
     business_profile = relationship("BusinessProfile", back_populates="applications")

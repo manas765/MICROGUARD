@@ -1,0 +1,40 @@
+{
+  "trained_at": "2026-09-13T12:16:51.121327+00:00",
+  "n_training_rows": 501,
+  "feature_columns": [
+    "requested_amount",
+    "term_days",
+    "age",
+    "gender",
+    "education",
+    "has_guarantor"
+  ],
+  "education_order": [
+    "High School or Below",
+    "college",
+    "Bachelor Degree",
+    "Master or Above"
+  ],
+  "cv_metrics": {
+    "accuracy": {
+      "mean": 0.6030495049504949,
+      "std": 0.07498890941755161
+    },
+    "precision": {
+      "mean": 0.30375457875457873,
+      "std": 0.048319517018339635
+    },
+    "recall": {
+      "mean": 0.73,
+      "std": 0.07483314773547886
+    },
+    "f1": {
+      "mean": 0.42702671142898846,
+      "std": 0.05524401472197281
+    },
+    "roc_auc": {
+      "mean": 0.6842662037037037,
+      "std": 0.04127793887465865
+    }
+  }
+}

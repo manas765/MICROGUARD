@@ -1,3 +1,5 @@
+import json
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
@@ -6,6 +8,7 @@ from typing import List
 from app.database import get_db
 from app.models.models import LoanApplication, BusinessProfile, User
 from app.dependencies import get_current_user
+from app.ml.inference import score_application
 
 router = APIRouter(prefix="/loans", tags=["loans"])
 
@@ -25,9 +28,18 @@ class LoanApplicationResponse(BaseModel):
     term_days: int
     has_guarantor: bool
     risk_score: float | None
+    risk_band: str | None
+    risk_reasons: list[str] | None
+    risk_confidence: str | None
 
     class Config:
         from_attributes = True
+
+    @classmethod
+    def model_validate(cls, obj, **kwargs):
+        if hasattr(obj, "risk_reasons") and isinstance(obj.risk_reasons, str):
+            obj.risk_reasons = json.loads(obj.risk_reasons)
+        return super().model_validate(obj, **kwargs)
 
 
 @router.post("/apply")
@@ -40,18 +52,38 @@ def apply_for_loan(
     if not profile:
         raise HTTPException(status_code=400, detail="You must create a business profile before applying for a loan")
 
+    result = score_application(
+        requested_amount=request.requested_amount,
+        term_days=request.term_days,
+        age=current_user.age,
+        gender=current_user.gender,
+        education=current_user.education,
+        has_guarantor=request.has_guarantor,
+    )
+
     application = LoanApplication(
         business_profile_id=profile.id,
         requested_amount=request.requested_amount,
         purpose=request.purpose,
         term_days=request.term_days,
         has_guarantor=request.has_guarantor,
+        risk_score=result["risk_score"],
+        risk_band=result["risk_band"],
+        risk_reasons=json.dumps(result["reasons"]),
+        risk_confidence=result["confidence"],
+        model_version=result["model_version"],
     )
     db.add(application)
     db.commit()
     db.refresh(application)
 
-    return {"message": "Loan application submitted", "application_id": application.id}
+    return {
+        "message": "Loan application submitted",
+        "application_id": application.id,
+        "risk_score": result["risk_score"],
+        "risk_band": result["risk_band"],
+        "reasons": result["reasons"],
+    }
 
 
 @router.get("/my-applications", response_model=List[LoanApplicationResponse])
