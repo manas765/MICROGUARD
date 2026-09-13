@@ -49,6 +49,9 @@ class LoanApplication(Base):
     risk_reasons = Column(String, nullable=True)  # JSON-encoded list of plain-language reasons
     risk_confidence = Column(String, nullable=True)  # low, medium, high
     model_version = Column(String, nullable=True)  # timestamp of the model that produced this score
+    stress_score = Column(Float, nullable=True)
+    stress_band = Column(String, nullable=True)  # Low, Medium, High
+    stress_reasons = Column(String, nullable=True)  # JSON-encoded list of plain-language reasons
     applied_at = Column(DateTime, default=datetime.utcnow)
 
     business_profile = relationship("BusinessProfile", back_populates="applications")

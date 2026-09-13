@@ -9,6 +9,7 @@ from app.database import get_db
 from app.models.models import LoanApplication, BusinessProfile, User
 from app.dependencies import get_current_user
 from app.ml.inference import score_application
+from app.finance.stress_calc import calculate_stress
 
 router = APIRouter(prefix="/loans", tags=["loans"])
 
@@ -31,6 +32,9 @@ class LoanApplicationResponse(BaseModel):
     risk_band: str | None
     risk_reasons: list[str] | None
     risk_confidence: str | None
+    stress_score: float | None
+    stress_band: str | None
+    stress_reasons: list[str] | None
 
     class Config:
         from_attributes = True
@@ -39,6 +43,8 @@ class LoanApplicationResponse(BaseModel):
     def model_validate(cls, obj, **kwargs):
         if hasattr(obj, "risk_reasons") and isinstance(obj.risk_reasons, str):
             obj.risk_reasons = json.loads(obj.risk_reasons)
+        if hasattr(obj, "stress_reasons") and isinstance(obj.stress_reasons, str):
+            obj.stress_reasons = json.loads(obj.stress_reasons)
         return super().model_validate(obj, **kwargs)
 
 
@@ -61,6 +67,13 @@ def apply_for_loan(
         has_guarantor=request.has_guarantor,
     )
 
+    stress_result = calculate_stress(
+        monthly_income_estimate=profile.monthly_income_estimate,
+        years_operating=profile.years_operating,
+        requested_amount=request.requested_amount,
+        term_days=request.term_days,
+    )
+
     application = LoanApplication(
         business_profile_id=profile.id,
         requested_amount=request.requested_amount,
@@ -72,6 +85,9 @@ def apply_for_loan(
         risk_reasons=json.dumps(result["reasons"]),
         risk_confidence=result["confidence"],
         model_version=result["model_version"],
+        stress_score=stress_result["stress_score"],
+        stress_band=stress_result["stress_band"],
+        stress_reasons=json.dumps(stress_result["reasons"]),
     )
     db.add(application)
     db.commit()
@@ -83,6 +99,9 @@ def apply_for_loan(
         "risk_score": result["risk_score"],
         "risk_band": result["risk_band"],
         "reasons": result["reasons"],
+        "stress_score": stress_result["stress_score"],
+        "stress_band": stress_result["stress_band"],
+        "stress_reasons": stress_result["reasons"],
     }
 
 
