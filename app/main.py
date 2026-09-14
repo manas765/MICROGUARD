@@ -2,7 +2,7 @@ import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth, business, loans
+from app.routers import auth, business, loans, simulation
 from app.database import engine, Base
 from app.models import models
 
@@ -20,7 +20,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(business.router)
 app.include_router(loans.router)
-
+app.include_router(simulation.router)
 
 
 @app.get("/")
