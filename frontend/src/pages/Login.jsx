@@ -1,23 +1,25 @@
 import { useState } from "react";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import api from "../lib/api";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/login`, {
-        email,
-        password,
-      });
-      localStorage.setItem("token", response.data.access_token);
-      alert("Login successful!");
+      const response = await api.post("/auth/login", { email, password });
+      login(response.data.access_token);
+      const decoded = JSON.parse(atob(response.data.access_token.split(".")[1]));
+      navigate(decoded.role === "borrower" ? "/dashboard" : "/officer");
     } catch (err) {
       setError("Invalid email or password. Please try again.");
     } finally {
@@ -27,7 +29,6 @@ function Login() {
 
   return (
     <div className="min-h-screen flex bg-cream-50">
-      {/* Left panel - branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-indigo-950 flex-col justify-between p-12 text-white">
         <div className="flex items-center gap-2">
           <div className="w-9 h-9 rounded-lg bg-amber-500 flex items-center justify-center font-bold text-indigo-950">
@@ -62,7 +63,6 @@ function Login() {
         </div>
       </div>
 
-      {/* Right panel - form */}
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-sm">
           <div className="lg:hidden flex items-center gap-2 mb-10">
