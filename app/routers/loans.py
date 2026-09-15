@@ -2,7 +2,7 @@ import json
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import List
 
 from datetime import datetime, timedelta
@@ -41,13 +41,12 @@ class LoanApplicationResponse(BaseModel):
     class Config:
         from_attributes = True
 
+    @field_validator("risk_reasons", "stress_reasons", mode="before")
     @classmethod
-    def model_validate(cls, obj, **kwargs):
-        if hasattr(obj, "risk_reasons") and isinstance(obj.risk_reasons, str):
-            obj.risk_reasons = json.loads(obj.risk_reasons)
-        if hasattr(obj, "stress_reasons") and isinstance(obj.stress_reasons, str):
-            obj.stress_reasons = json.loads(obj.stress_reasons)
-        return super().model_validate(obj, **kwargs)
+    def _parse_json_reasons(cls, value):
+        if isinstance(value, str):
+            return json.loads(value)
+        return value
 
 
 @router.post("/apply")
@@ -130,10 +129,6 @@ def get_all_applications(
     return db.query(LoanApplication).all()
 
 
-# Advisory only — a starting point for negotiation, not an enforced
-# rule. The loan officer sets the actual rate when approving; this
-# just gives them a reasonable range to anchor the conversation,
-# informed by the risk score without being dictated by it.
 SUGGESTED_RATE_RANGES = {
     "Low": (10, 14),
     "Medium": (16, 20),
@@ -167,9 +162,9 @@ def get_suggested_terms(
 
 
 class DecisionRequest(BaseModel):
-    decision: str  # "approved" or "rejected"
-    interest_rate: float | None = None  # required when approving — the loan officer's final agreed rate
-    final_term_days: int | None = None  # optional — defaults to what the borrower originally requested
+    decision: str
+    interest_rate: float | None = None
+    final_term_days: int | None = None
 
 
 @router.post("/{application_id}/decision")
