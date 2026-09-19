@@ -19,11 +19,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-@app.get("/setup/reset-tables")
-def reset_tables():
-    Base.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
-    return {"message": "Tables reset successfully"}
 
 app.include_router(auth.router)
 app.include_router(business.router)
