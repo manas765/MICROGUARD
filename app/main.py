@@ -8,6 +8,12 @@ from app.models import models
 
 app = FastAPI(title="MICROGUARD API")
 
+@app.get("/setup/reset-tables")
+def reset_tables():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+    return {"message": "Tables reset successfully"} 
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
