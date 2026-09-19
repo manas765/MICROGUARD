@@ -12,6 +12,7 @@ from app.models.models import LoanApplication, BusinessProfile, User, Loan, Repa
 from app.dependencies import get_current_user
 from app.ml.inference import score_application
 from app.finance.stress_calc import calculate_stress
+from app.fraud.fraud_detection import assess_fraud, build_shared_attribute_graph
 
 router = APIRouter(prefix="/loans", tags=["loans"])
 
@@ -21,6 +22,7 @@ class LoanApplicationRequest(BaseModel):
     purpose: str
     term_days: int
     has_guarantor: bool = False
+    guarantor_phone: str | None = None
 
 
 class LoanApplicationResponse(BaseModel):
@@ -37,11 +39,13 @@ class LoanApplicationResponse(BaseModel):
     stress_score: float | None
     stress_band: str | None
     stress_reasons: list[str] | None
+    fraud_flags: list[str] | None
+    fraud_risk_level: str | None
 
     class Config:
         from_attributes = True
 
-    @field_validator("risk_reasons", "stress_reasons", mode="before")
+    @field_validator("risk_reasons", "stress_reasons", "fraud_flags", mode="before")
     @classmethod
     def _parse_json_reasons(cls, value):
         if isinstance(value, str):
@@ -81,6 +85,7 @@ def apply_for_loan(
         purpose=request.purpose,
         term_days=request.term_days,
         has_guarantor=request.has_guarantor,
+        guarantor_phone=request.guarantor_phone,
         risk_score=result["risk_score"],
         risk_band=result["risk_band"],
         risk_reasons=json.dumps(result["reasons"]),
@@ -94,6 +99,11 @@ def apply_for_loan(
     db.commit()
     db.refresh(application)
 
+    fraud_result = _run_fraud_assessment(db, current_user, profile, application, request)
+    application.fraud_flags = json.dumps(fraud_result["flags"])
+    application.fraud_risk_level = fraud_result["risk_level"]
+    db.commit()
+
     return {
         "message": "Loan application submitted",
         "application_id": application.id,
@@ -103,7 +113,52 @@ def apply_for_loan(
         "stress_score": stress_result["stress_score"],
         "stress_band": stress_result["stress_band"],
         "stress_reasons": stress_result["reasons"],
+        "fraud_flags": fraud_result["flags"],
+        "fraud_risk_level": fraud_result["risk_level"],
     }
+
+
+def _run_fraud_assessment(db: Session, current_user: User, profile: BusinessProfile, application: LoanApplication, request: "LoanApplicationRequest") -> dict:
+    recent_times = [a.applied_at for a in profile.applications]
+
+    defaulted_apps = (
+        db.query(LoanApplication)
+        .join(Loan, Loan.application_id == LoanApplication.id)
+        .filter(Loan.status == "defaulted", LoanApplication.guarantor_phone.isnot(None))
+        .all()
+    )
+    defaulted_guarantor_phones = {a.guarantor_phone for a in defaulted_apps}
+
+    edges = []
+    all_apps = db.query(LoanApplication).all()
+    for a in all_apps:
+        if a.guarantor_phone:
+            edges.append(("phone", a.guarantor_phone, a.id))
+        owner = a.business_profile.owner if a.business_profile else None
+        if owner and owner.signup_ip:
+            edges.append(("ip", owner.signup_ip, a.id))
+    graph = build_shared_attribute_graph(edges)
+
+    historical_features = []
+    for a in all_apps:
+        if a.id == application.id:
+            continue
+        owner = a.business_profile.owner if a.business_profile else None
+        if owner and owner.age is not None:
+            historical_features.append([a.requested_amount, a.term_days, owner.age])
+    new_features = [request.requested_amount, request.term_days, current_user.age]
+
+    return assess_fraud(
+        recent_application_times=recent_times,
+        requested_amount=request.requested_amount,
+        monthly_income_estimate=profile.monthly_income_estimate,
+        guarantor_phone=request.guarantor_phone,
+        defaulted_guarantor_phones=defaulted_guarantor_phones,
+        graph=graph,
+        application_id=application.id,
+        historical_features=historical_features,
+        new_features=new_features,
+    )
 
 
 @router.get("/my-applications", response_model=List[LoanApplicationResponse])

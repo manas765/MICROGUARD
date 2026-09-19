@@ -15,6 +15,7 @@ class User(Base):
     age = Column(Integer, nullable=True)
     gender = Column(String, nullable=True)
     education = Column(String, nullable=True)
+    signup_ip = Column(String, nullable=True)  # captured automatically at signup, used for fraud-ring detection
     created_at = Column(DateTime, default=datetime.utcnow)
 
     business_profile = relationship("BusinessProfile", back_populates="owner", uselist=False)
@@ -43,6 +44,7 @@ class LoanApplication(Base):
     purpose = Column(String, nullable=True)
     term_days = Column(Integer, nullable=False)
     has_guarantor = Column(Boolean, default=False)
+    guarantor_phone = Column(String, nullable=True)  # identifies the actual guarantor, used for fraud-ring detection
     status = Column(String, default="pending")  # pending, approved, rejected
     risk_score = Column(Float, nullable=True)
     risk_band = Column(String, nullable=True)  # Low, Medium, High
@@ -52,6 +54,8 @@ class LoanApplication(Base):
     stress_score = Column(Float, nullable=True)
     stress_band = Column(String, nullable=True)  # Low, Medium, High
     stress_reasons = Column(String, nullable=True)  # JSON-encoded list of plain-language reasons
+    fraud_flags = Column(String, nullable=True)  # JSON-encoded list of plain-language fraud flags
+    fraud_risk_level = Column(String, nullable=True)  # none, low, medium, high
     applied_at = Column(DateTime, default=datetime.utcnow)
 
     business_profile = relationship("BusinessProfile", back_populates="applications")

@@ -1,6 +1,6 @@
 from typing import Literal
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
 
@@ -26,8 +26,21 @@ class LoginRequest(BaseModel):
     password: str
 
 
+def get_client_ip(request: Request) -> str | None:
+    """Render (and most hosting platforms) sit behind a reverse proxy,
+    so request.client.host is the proxy's internal IP, not the real
+    visitor's — every user would appear to share one IP, silently
+    breaking the fraud detection's shared-IP signal. X-Forwarded-For
+    holds the real chain of IPs when present; its first entry is the
+    original client."""
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host if request.client else None
+
+
 @router.post("/signup")
-def signup(request: SignupRequest, db: Session = Depends(get_db)):
+def signup(request: SignupRequest, http_request: Request, db: Session = Depends(get_db)):
     existing_user = db.query(User).filter(User.email == request.email).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
@@ -39,7 +52,8 @@ def signup(request: SignupRequest, db: Session = Depends(get_db)):
         role=request.role,
         age=request.age,
         gender=request.gender,
-        education=request.education
+        education=request.education,
+        signup_ip=get_client_ip(http_request),
     )
     db.add(new_user)
     db.commit()
