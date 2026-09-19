@@ -86,6 +86,7 @@ class RepaymentSchedule(Base):
     due_date = Column(DateTime, nullable=False)
     amount_due = Column(Float, nullable=False)
     is_paid = Column(Boolean, default=False)
+    paid_at = Column(DateTime, nullable=True)  # when it was actually marked paid, used to distinguish on-time from late
 
     loan = relationship("Loan", back_populates="repayment_schedule")
 
