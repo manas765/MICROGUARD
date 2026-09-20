@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../lib/api";
 import Navbar from "../components/Navbar";
 import BandBadge from "../components/BandBadge";
+import FraudBadge from "../components/FraudBadge";
 
 function OfficerDashboard() {
   const [applications, setApplications] = useState([]);
@@ -89,11 +90,23 @@ function OfficerDashboard() {
                   <div className="flex gap-2">
                     <BandBadge band={app.risk_band} />
                     <BandBadge band={app.stress_band} />
+                    <FraudBadge level={app.fraud_risk_level} />
                   </div>
                 </button>
 
-                {expandedId === app.id && (
+                  {expandedId === app.id && (
                   <div className="border-t border-gray-100 px-5 py-4 space-y-4">
+                    {app.fraud_flags && app.fraud_flags.length > 0 && (
+                      <div className="bg-red-50 border border-red-100 rounded-xl p-4 text-sm">
+                        <div className="font-medium text-red-800 mb-1">Fraud flags</div>
+                        <ul className="text-red-700 space-y-1">
+                          {app.fraud_flags.map((f, i) => (
+                            <li key={i}>• {f}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
                     {suggestedTerms && (
                       <div className="bg-cream-50 rounded-xl p-4 text-sm">
                         <div className="font-medium text-indigo-950 mb-1">Suggested terms</div>
