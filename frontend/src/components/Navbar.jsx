@@ -33,9 +33,14 @@ function Navbar() {
           </>
         )}
         {(user?.role === "loan_officer" || user?.role === "admin") && (
-          <Link to="/officer" className="text-indigo-200 hover:text-white transition">
-            Applications
-          </Link>
+          <>
+            <Link to="/officer" className="text-indigo-200 hover:text-white transition">
+              Applications
+            </Link>
+            <Link to="/monitoring" className="text-indigo-200 hover:text-white transition">
+              Monitoring
+            </Link>
+          </>
         )}
         <button onClick={handleLogout} className="text-indigo-200 hover:text-white transition">
           Log out

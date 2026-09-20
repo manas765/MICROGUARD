@@ -4,6 +4,7 @@ import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import Forecast from "./pages/Forecast";
 import OfficerDashboard from "./pages/OfficerDashboard";
+import Monitoring from "./pages/Monitoring";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
 
@@ -35,6 +36,22 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={["loan_officer", "admin"]}>
                 <OfficerDashboard />
+              </ProtectedRoute>
+            }
+          />
+                    <Route
+            path="/officer"
+            element={
+              <ProtectedRoute allowedRoles={["loan_officer", "admin"]}>
+                <OfficerDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/monitoring"
+            element={
+              <ProtectedRoute allowedRoles={["loan_officer", "admin"]}>
+                <Monitoring />
               </ProtectedRoute>
             }
           />

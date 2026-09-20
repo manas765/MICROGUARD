@@ -29,6 +29,7 @@ def _build_alert_entry(schedule: RepaymentSchedule) -> dict:
         paid_at=schedule.paid_at,
     )
     return {
+        "schedule_id": schedule.id,
         "loan_id": loan.id,
         "application_id": application.id,
         "business_name": application.business_profile.business_name if application.business_profile else None,

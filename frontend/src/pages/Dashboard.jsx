@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../lib/api";
 import Navbar from "../components/Navbar";
 import BandBadge from "../components/BandBadge";
+import HealthBadge from "../components/HealthBadge";
 
 function Dashboard() {
   const [profile, setProfile] = useState(null);
@@ -28,6 +29,10 @@ function Dashboard() {
   const [applyResult, setApplyResult] = useState(null);
   const [applySubmitting, setApplySubmitting] = useState(false);
 
+  const [loanHealth, setLoanHealth] = useState([]);
+  const [repayingId, setRepayingId] = useState(null);
+  const [repayError, setRepayError] = useState("");
+
   const loadProfile = async () => {
     try {
       const res = await api.get("/business/profile/me");
@@ -48,10 +53,33 @@ function Dashboard() {
     }
   };
 
+  const loadLoanHealth = async () => {
+    try {
+      const res = await api.get("/monitoring/my-loans");
+      setLoanHealth(res.data.loans);
+    } catch {
+      setLoanHealth([]);
+    }
+  };
+
   useEffect(() => {
     loadProfile();
     loadApplications();
+    loadLoanHealth();
   }, []);
+
+  const handleRepay = async (scheduleId) => {
+    setRepayError("");
+    setRepayingId(scheduleId);
+    try {
+      await api.post(`/monitoring/repay/${scheduleId}`);
+      await loadLoanHealth();
+    } catch (err) {
+      setRepayError(err.response?.data?.detail || "Could not mark this as repaid.");
+    } finally {
+      setRepayingId(null);
+    }
+  };
 
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
@@ -280,6 +308,46 @@ function Dashboard() {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {profile && loanHealth.length > 0 && (
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <h2 className="text-lg font-semibold text-indigo-950 mb-5">Your loan health</h2>
+
+            {repayError && (
+              <div className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2 mb-4">
+                {repayError}
+              </div>
+            )}
+
+            <div className="space-y-3">
+              {loanHealth.map((loan) => (
+                <div
+                  key={loan.schedule_id}
+                  className="flex items-center justify-between border border-gray-100 rounded-xl px-4 py-3"
+                >
+                  <div>
+                    <div className="font-medium text-indigo-950">{loan.purpose}</div>
+                    <div className="text-sm text-gray-400">
+                      {loan.amount_due} due {new Date(loan.due_date).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <HealthBadge status={loan.health_status} />
+                    {!loan.is_paid && (
+                      <button
+                        onClick={() => handleRepay(loan.schedule_id)}
+                        disabled={repayingId === loan.schedule_id}
+                        className="bg-indigo-900 hover:bg-indigo-800 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition disabled:opacity-60"
+                      >
+                        {repayingId === loan.schedule_id ? "Marking..." : "Mark as repaid"}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
