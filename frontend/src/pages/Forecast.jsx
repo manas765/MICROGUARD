@@ -106,9 +106,9 @@ function Forecast() {
     <div className="min-h-screen bg-cream-50">
       <Navbar />
 
-      <div className="max-w-4xl mx-auto px-6 py-10 space-y-8">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <div className="flex items-center justify-between mb-5">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6 sm:space-y-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
             <h1 className="text-lg font-semibold text-indigo-950">Cash-flow forecast</h1>
             <div className="flex items-center gap-2 text-sm">
               <label className="text-gray-500">Horizon:</label>
@@ -138,13 +138,13 @@ function Forecast() {
           {loading ? (
             <p className="text-gray-400 text-sm">Loading forecast...</p>
           ) : chartData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={320}>
-              <LineChart data={chartData}>
+            <ResponsiveContainer width="100%" height={280} minWidth={0}>
+              <LineChart data={chartData} margin={{ left: -10, right: 10 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f0ee" />
-                <XAxis dataKey="month" label={{ value: "Month", position: "insideBottom", offset: -5 }} />
-                <YAxis />
+                <XAxis dataKey="month" tick={{ fontSize: 12 }} label={{ value: "Month", position: "insideBottom", offset: -5, fontSize: 12 }} />
+                <YAxis tick={{ fontSize: 12 }} width={50} />
                 <Tooltip />
-                <Legend />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
                 {seriesNames.map((name, i) => (
                   <Line
                     key={name}
@@ -162,59 +162,69 @@ function Forecast() {
           )}
         </div>
 
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <div className="flex items-center justify-between mb-5">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
             <h2 className="text-lg font-semibold text-indigo-950">Compare scenarios</h2>
-            <button onClick={addScenario} className="text-sm text-indigo-700 font-medium hover:underline">
+            <button onClick={addScenario} className="text-sm text-indigo-700 font-medium hover:underline self-start sm:self-auto">
               + Add scenario
             </button>
           </div>
 
           <div className="space-y-4">
             {scenarios.map((s, i) => (
-              <div key={i} className="grid grid-cols-5 gap-3 items-center">
-                <input
-                  placeholder="Name"
-                  value={s.name}
-                  onChange={(e) => updateScenario(i, "name", e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                />
-                <input
-                  type="number"
-                  step="0.01"
-                  placeholder="Growth rate (e.g. 0.02)"
-                  value={s.income_growth_rate}
-                  onChange={(e) => updateScenario(i, "income_growth_rate", e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                />
-                <input
-                  type="number"
-                  placeholder="Shock month"
-                  value={s.shock_month}
-                  onChange={(e) => updateScenario(i, "shock_month", e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                />
-                <input
-                  type="number"
-                  step="0.01"
-                  placeholder="Shock % (0-1)"
-                  value={s.shock_pct}
-                  onChange={(e) => updateScenario(i, "shock_pct", e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
-                />
-                <div className="flex gap-2">
-                  <input
-                    type="number"
-                    placeholder="Extra expense"
-                    value={s.extra_monthly_expense}
-                    onChange={(e) => updateScenario(i, "extra_monthly_expense", e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm w-full"
-                  />
+              <div key={i} className="border border-gray-100 rounded-xl p-3 sm:p-0 sm:border-0">
+                <div className="flex items-center justify-between sm:hidden mb-2">
+                  <span className="text-xs font-medium text-gray-400">Scenario {i + 1}</span>
                   {scenarios.length > 1 && (
-                    <button onClick={() => removeScenario(i)} className="text-gray-400 hover:text-red-500 px-1">
-                      ✕
+                    <button onClick={() => removeScenario(i)} className="text-gray-400 hover:text-red-500 text-xs">
+                      Remove
                     </button>
                   )}
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 items-center">
+                  <input
+                    placeholder="Name"
+                    value={s.name}
+                    onChange={(e) => updateScenario(i, "name", e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="Growth rate (e.g. 0.02)"
+                    value={s.income_growth_rate}
+                    onChange={(e) => updateScenario(i, "income_growth_rate", e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Shock month"
+                    value={s.shock_month}
+                    onChange={(e) => updateScenario(i, "shock_month", e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="Shock % (0-1)"
+                    value={s.shock_pct}
+                    onChange={(e) => updateScenario(i, "shock_pct", e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  />
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      placeholder="Extra expense"
+                      value={s.extra_monthly_expense}
+                      onChange={(e) => updateScenario(i, "extra_monthly_expense", e.target.value)}
+                      className="px-3 py-2 border border-gray-300 rounded-lg text-sm w-full"
+                    />
+                    {scenarios.length > 1 && (
+                      <button onClick={() => removeScenario(i)} className="hidden sm:block text-gray-400 hover:text-red-500 px-1">
+                        ✕
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
@@ -223,7 +233,7 @@ function Forecast() {
           <button
             onClick={runComparison}
             disabled={comparing}
-            className="mt-5 bg-indigo-900 hover:bg-indigo-800 text-white font-medium px-5 py-2.5 rounded-lg text-sm transition disabled:opacity-60"
+            className="mt-5 w-full sm:w-auto bg-indigo-900 hover:bg-indigo-800 text-white font-medium px-5 py-2.5 rounded-lg text-sm transition disabled:opacity-60"
           >
             {comparing ? "Running..." : "Run comparison"}
           </button>

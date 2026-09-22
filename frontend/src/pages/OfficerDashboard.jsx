@@ -66,7 +66,7 @@ function OfficerDashboard() {
     <div className="min-h-screen bg-cream-50">
       <Navbar />
 
-      <div className="max-w-4xl mx-auto px-6 py-10">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
         <h1 className="text-lg font-semibold text-indigo-950 mb-5">Loan applications</h1>
 
         {applications.length === 0 ? (
@@ -77,7 +77,7 @@ function OfficerDashboard() {
               <div key={app.id} className="bg-white rounded-2xl shadow-sm border border-gray-100">
                 <button
                   onClick={() => handleExpand(app)}
-                  className="w-full flex items-center justify-between px-5 py-4 text-left"
+                  className="w-full flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 px-4 sm:px-5 py-4 text-left"
                 >
                   <div>
                     <div className="font-medium text-indigo-950">
@@ -87,7 +87,7 @@ function OfficerDashboard() {
                       {app.term_days} days · {app.has_guarantor ? "Has guarantor" : "No guarantor"} · {app.status}
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
                     <BandBadge band={app.risk_band} />
                     <BandBadge band={app.stress_band} />
                     <FraudBadge level={app.fraud_risk_level} />
@@ -95,7 +95,7 @@ function OfficerDashboard() {
                 </button>
 
                   {expandedId === app.id && (
-                  <div className="border-t border-gray-100 px-5 py-4 space-y-4">
+                  <div className="border-t border-gray-100 px-4 sm:px-5 py-4 space-y-4">
                     {app.fraud_flags && app.fraud_flags.length > 0 && (
                       <div className="bg-red-50 border border-red-100 rounded-xl p-4 text-sm">
                         <div className="font-medium text-red-800 mb-1">Fraud flags</div>
@@ -119,7 +119,7 @@ function OfficerDashboard() {
                     )}
 
                     {app.status === "pending" ? (
-                      <div className="grid grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <input
                           type="number"
                           placeholder="Final interest rate (%)"
@@ -135,11 +135,11 @@ function OfficerDashboard() {
                           className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
                         />
                         {decisionError && (
-                          <div className="col-span-2 text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
+                          <div className="sm:col-span-2 text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
                             {decisionError}
                           </div>
                         )}
-                        <div className="col-span-2 flex gap-3">
+                        <div className="sm:col-span-2 flex gap-3">
                           <button
                             onClick={() => handleDecision(app.id, "approved")}
                             disabled={submitting}

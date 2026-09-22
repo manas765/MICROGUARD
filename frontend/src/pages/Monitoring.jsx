@@ -30,7 +30,7 @@ function Monitoring() {
     <div className="min-h-screen bg-cream-50">
       <Navbar />
 
-      <div className="max-w-4xl mx-auto px-6 py-10">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
         <h1 className="text-lg font-semibold text-indigo-950 mb-2">Loan monitoring</h1>
         <p className="text-gray-500 text-sm mb-6">
           Predicted risk at origination vs. actual repayment behavior, updated live.
@@ -46,7 +46,7 @@ function Monitoring() {
           <p className="text-gray-400 text-sm">Loading...</p>
         ) : data && data.loans.length > 0 ? (
           <>
-            <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
               <div className="bg-white rounded-xl border border-gray-100 p-4">
                 <div className="text-2xl font-semibold text-indigo-950">{data.total}</div>
                 <div className="text-sm text-gray-400">Total loans</div>
@@ -65,11 +65,11 @@ function Monitoring() {
               {data.loans.map((loan) => (
                 <div
                   key={loan.loan_id}
-                  className={`bg-white rounded-2xl border p-5 ${
+                  className={`bg-white rounded-2xl border p-4 sm:p-5 ${
                     loan.is_alert ? "border-red-200" : "border-gray-100"
                   }`}
                 >
-                  <div className="flex items-start justify-between mb-3">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
                     <div>
                       <div className="font-medium text-indigo-950">
                         {loan.business_name} — {loan.purpose}
@@ -81,7 +81,7 @@ function Monitoring() {
                     <HealthBadge status={loan.health_status} />
                   </div>
 
-                  <div className="flex items-center gap-6 text-sm">
+                  <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm">
                     <div>
                       <span className="text-gray-400">Predicted: </span>
                       <BandBadge band={loan.predicted_risk_band} />

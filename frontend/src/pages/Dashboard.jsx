@@ -124,14 +124,14 @@ function Dashboard() {
     <div className="min-h-screen bg-cream-50">
       <Navbar />
 
-      <div className="max-w-4xl mx-auto px-6 py-10 space-y-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-6 sm:space-y-8">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
           {profileLoading ? (
             <p className="text-gray-400 text-sm">Loading profile...</p>
           ) : profile ? (
             <div>
               <h2 className="text-lg font-semibold text-indigo-950 mb-3">{profile.business_name}</h2>
-              <div className="grid grid-cols-3 gap-4 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
                 <div>
                   <div className="text-gray-400">Sector</div>
                   <div className="font-medium text-indigo-950">{profile.sector}</div>
@@ -152,7 +152,7 @@ function Dashboard() {
               <p className="text-gray-500 text-sm mb-5">
                 You'll need this before applying for a loan.
               </p>
-              <form onSubmit={handleProfileSubmit} className="grid grid-cols-2 gap-4">
+              <form onSubmit={handleProfileSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <input
                   placeholder="Business name"
                   value={profileForm.business_name}
@@ -185,14 +185,14 @@ function Dashboard() {
                   className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
                 />
                 {profileError && (
-                  <div className="col-span-2 text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
+                  <div className="sm:col-span-2 text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
                     {profileError}
                   </div>
                 )}
                 <button
                   type="submit"
                   disabled={profileSubmitting}
-                  className="col-span-2 bg-indigo-900 hover:bg-indigo-800 text-white font-medium py-2.5 rounded-lg transition disabled:opacity-60"
+                  className="sm:col-span-2 bg-indigo-900 hover:bg-indigo-800 text-white font-medium py-2.5 rounded-lg transition disabled:opacity-60"
                 >
                   {profileSubmitting ? "Creating..." : "Create profile"}
                 </button>
@@ -203,7 +203,7 @@ function Dashboard() {
 
         {profile && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <div className="flex items-center justify-between mb-5">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
               <h2 className="text-lg font-semibold text-indigo-950">Your loan applications</h2>
               <button
                 onClick={() => setShowApplyForm(!showApplyForm)}
@@ -214,7 +214,7 @@ function Dashboard() {
             </div>
 
             {showApplyForm && (
-              <form onSubmit={handleApplySubmit} className="grid grid-cols-2 gap-4 mb-6 pb-6 border-b border-gray-100">
+              <form onSubmit={handleApplySubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6 pb-6 border-b border-gray-100">
                 <input
                   type="number"
                   placeholder="Requested amount"
@@ -248,14 +248,14 @@ function Dashboard() {
                   I have a guarantor
                 </label>
                 {applyError && (
-                  <div className="col-span-2 text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
+                  <div className="sm:col-span-2 text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
                     {applyError}
                   </div>
                 )}
                 <button
                   type="submit"
                   disabled={applySubmitting}
-                  className="col-span-2 bg-indigo-900 hover:bg-indigo-800 text-white font-medium py-2.5 rounded-lg transition disabled:opacity-60"
+                  className="sm:col-span-2 bg-indigo-900 hover:bg-indigo-800 text-white font-medium py-2.5 rounded-lg transition disabled:opacity-60"
                 >
                   {applySubmitting ? "Submitting..." : "Submit application"}
                 </button>
@@ -263,7 +263,7 @@ function Dashboard() {
             )}
 
             {applyResult && (
-              <div className="mb-6 pb-6 border-b border-gray-100 grid grid-cols-2 gap-4">
+              <div className="mb-6 pb-6 border-b border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="bg-cream-50 rounded-xl p-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium text-gray-500">Credit risk</span>
@@ -292,7 +292,7 @@ function Dashboard() {
                 {applications.map((app) => (
                   <div
                     key={app.id}
-                    className="flex items-center justify-between border border-gray-100 rounded-xl px-4 py-3"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border border-gray-100 rounded-xl px-4 py-3"
                   >
                     <div>
                       <div className="font-medium text-indigo-950">{app.purpose}</div>
@@ -300,7 +300,7 @@ function Dashboard() {
                         {app.requested_amount} over {app.term_days} days · {app.status}
                       </div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap">
                       <BandBadge band={app.risk_band} />
                       <BandBadge band={app.stress_band} />
                     </div>
@@ -325,7 +325,7 @@ function Dashboard() {
               {loanHealth.map((loan) => (
                 <div
                   key={loan.schedule_id}
-                  className="flex items-center justify-between border border-gray-100 rounded-xl px-4 py-3"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border border-gray-100 rounded-xl px-4 py-3"
                 >
                   <div>
                     <div className="font-medium text-indigo-950">{loan.purpose}</div>
