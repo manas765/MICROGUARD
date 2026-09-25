@@ -1,13 +1,16 @@
 """
-Calls Claude to answer a question, grounded strictly in the context
-built by context_builder.py.
+Calls a model on Groq (free tier, rate-limited) to answer a question,
+grounded strictly in the context built by context_builder.py.
+
+Groq was chosen over a paid API specifically because it has a real
+free tier - no billing required to test or run this feature.
 """
 
 import os
 
-import anthropic
+from groq import Groq
 
-MODEL = "claude-sonnet-4-5"
+MODEL = "llama-3.3-70b-versatile"
 
 SYSTEM_PROMPT = """You are MICROGUARD's financial assistant, helping a microfinance borrower or loan officer understand their own loan, risk, and forecast data.
 
@@ -22,25 +25,25 @@ Rules you must follow:
 
 
 def ask_assistant(question: str, context: str) -> str:
-    api_key = os.getenv("ANTHROPIC_API_KEY")
+    api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
         return (
-            "The AI assistant isn't configured yet - an ANTHROPIC_API_KEY environment "
+            "The AI assistant isn't configured yet - a GROQ_API_KEY environment "
             "variable needs to be set on the server."
         )
 
-    client = anthropic.Anthropic(api_key=api_key)
+    client = Groq(api_key=api_key)
 
-    message = client.messages.create(
+    completion = client.chat.completions.create(
         model=MODEL,
         max_tokens=500,
-        system=SYSTEM_PROMPT,
         messages=[
+            {"role": "system", "content": SYSTEM_PROMPT},
             {
                 "role": "user",
                 "content": f"Here is the relevant data:\n\n{context}\n\nQuestion: {question}",
-            }
+            },
         ],
     )
 
-    return message.content[0].text
+    return completion.choices[0].message.content
