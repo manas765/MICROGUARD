@@ -10,6 +10,9 @@ if not DATABASE_URL:
     password = quote_plus("Namish@27$")
     DATABASE_URL = f"postgresql://postgres:{password}@localhost:5432/microguard"
 
+if DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
+
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
