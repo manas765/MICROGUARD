@@ -13,6 +13,7 @@ from app.dependencies import get_current_user
 from app.ml.inference import score_application
 from app.finance.stress_calc import calculate_stress
 from app.fraud.fraud_detection import assess_fraud, build_shared_attribute_graph
+from app.audit.audit_log import record_event
 
 router = APIRouter(prefix="/loans", tags=["loans"])
 
@@ -103,6 +104,14 @@ def apply_for_loan(
     application.fraud_flags = json.dumps(fraud_result["flags"])
     application.fraud_risk_level = fraud_result["risk_level"]
     db.commit()
+
+    if fraud_result["risk_level"] in ("Medium", "High"):
+        record_event(db, "fraud_flag_raised", {
+            "application_id": application.id,
+            "user_id": current_user.id,
+            "risk_level": fraud_result["risk_level"],
+            "flags": fraud_result["flags"],
+        })
 
     return {
         "message": "Loan application submitted",
@@ -272,6 +281,15 @@ def decide_application(
         db.add(schedule)
         db.commit()
 
+        record_event(db, "loan_approved", {
+            "application_id": application.id,
+            "loan_id": loan.id,
+            "decided_by_user_id": current_user.id,
+            "principal": loan.principal,
+            "interest_rate": loan.interest_rate,
+            "term_days": loan.term_days,
+        })
+
         return {
             "message": f"Application {application_id} approved",
             "loan_id": loan.id,
@@ -283,4 +301,10 @@ def decide_application(
         }
 
     db.commit()
+
+    record_event(db, "loan_rejected", {
+        "application_id": application.id,
+        "decided_by_user_id": current_user.id,
+    })
+
     return {"message": f"Application {application_id} marked as {request.decision}"}

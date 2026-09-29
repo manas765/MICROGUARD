@@ -2,7 +2,7 @@ import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth, business, loans, simulation, monitoring, assistant
+from app.routers import auth, business, loans, simulation, monitoring, assistant, audit
 from app.database import engine, Base
 from app.models import models
 
@@ -26,7 +26,7 @@ app.include_router(loans.router)
 app.include_router(simulation.router)
 app.include_router(monitoring.router)
 app.include_router(assistant.router)
-
+app.include_router(audit.router)
 
 @app.get("/")
 def root():

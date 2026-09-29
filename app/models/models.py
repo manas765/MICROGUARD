@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, Boolean, Text
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.database import Base
@@ -100,3 +100,13 @@ class Repayment(Base):
     paid_at = Column(DateTime, default=datetime.utcnow)
 
     loan = relationship("Loan", back_populates="repayments")
+
+class AuditLog(Base):
+    __tablename__ = "audit_log"
+
+    id = Column(Integer, primary_key=True, index=True)
+    event_type = Column(String, nullable=False)
+    event_data = Column(Text, nullable=False)
+    timestamp = Column(DateTime, default=datetime.utcnow)
+    prev_hash = Column(String, nullable=False)
+    this_hash = Column(String, nullable=False)
