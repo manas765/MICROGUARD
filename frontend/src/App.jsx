@@ -8,6 +8,7 @@ import Monitoring from "./pages/Monitoring";
 import FraudGraph from "./pages/FraudGraph";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
+import Privacy from "./pages/Privacy";
 
 function App() {
   return (
@@ -56,6 +57,14 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/privacy"
+            element={
+            <ProtectedRoute allowedRoles={["borrower", "loan_officer", "admin"]}>
+            <Privacy />
+            </ProtectedRoute>
+            }
+           />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

@@ -21,7 +21,7 @@ function Navbar() {
         <span className="font-semibold tracking-tight hidden sm:inline">MICROGUARD</span>
       </Link>
 
-      <div className="flex items-center gap-3 sm:gap-6 text-xs sm:text-sm">
+            <div className="flex items-center gap-3 sm:gap-6 text-xs sm:text-sm">
         {user?.role === "borrower" && (
           <>
             <Link to="/dashboard" className="text-indigo-200 hover:text-white transition">
@@ -45,6 +45,9 @@ function Navbar() {
             </Link>
           </>
         )}
+        <Link to="/privacy" className="text-indigo-200 hover:text-white transition">
+          Privacy
+        </Link>
         <button onClick={handleLogout} className="text-indigo-200 hover:text-white transition">
           Log out
         </button>
