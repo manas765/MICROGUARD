@@ -5,6 +5,7 @@ import Dashboard from "./pages/Dashboard";
 import Forecast from "./pages/Forecast";
 import OfficerDashboard from "./pages/OfficerDashboard";
 import Monitoring from "./pages/Monitoring";
+import FraudGraph from "./pages/FraudGraph";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
 
@@ -39,19 +40,19 @@ function App() {
               </ProtectedRoute>
             }
           />
-                    <Route
-            path="/officer"
-            element={
-              <ProtectedRoute allowedRoles={["loan_officer", "admin"]}>
-                <OfficerDashboard />
-              </ProtectedRoute>
-            }
-          />
           <Route
             path="/monitoring"
             element={
               <ProtectedRoute allowedRoles={["loan_officer", "admin"]}>
                 <Monitoring />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/fraud-graph"
+            element={
+              <ProtectedRoute allowedRoles={["loan_officer", "admin"]}>
+                <FraudGraph />
               </ProtectedRoute>
             }
           />

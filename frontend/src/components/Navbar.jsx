@@ -40,6 +40,9 @@ function Navbar() {
             <Link to="/monitoring" className="text-indigo-200 hover:text-white transition">
               Monitoring
             </Link>
+            <Link to="/fraud-graph" className="text-indigo-200 hover:text-white transition">
+              Fraud Graph
+            </Link>
           </>
         )}
         <button onClick={handleLogout} className="text-indigo-200 hover:text-white transition">
