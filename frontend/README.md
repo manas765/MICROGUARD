@@ -1,16 +1,62 @@
-# React + Vite
+# MICROGUARD
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+An AI-powered end-to-end microfinance platform covering credit scoring, business cash-flow simulation, fraud detection, continuous loan monitoring, an AI financial assistant, and a tamper-evident audit trail.
 
-Currently, two official plugins are available:
+Built as a full-stack portfolio project — React frontend, FastAPI backend, PostgreSQL database, deployed on Vercel + Render.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+**Live app:** https://frontend-vibr.vercel.app/
+**API docs:** https://microguard.onrender.com/docs
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Overview
 
-## Expanding the Oxlint configuration
+MICROGUARD simulates a real microfinance lending platform for small business owners. Borrowers apply for loans and get an instant, explainable credit risk score; loan officers review and approve/reject applications with AI-assisted terms; approved loans are tracked through repayment with continuous risk monitoring; and the whole system includes fraud detection, privacy-conscious data handling, and a cryptographically verifiable audit log.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+Every scoring/analysis component is built honestly for what the data supports — a real trained ML model where historical data exists (credit risk), and transparent rule-based logic where it doesn't (financial stress, loan health monitoring, cash-flow forecasting) rather than fabricating models with no real labels to train on.
+
+---
+
+## Tech stack
+
+- **Frontend:** React (Vite), Tailwind CSS, Recharts, React Router — deployed on Vercel
+- **Backend:** FastAPI, SQLAlchemy, Pydantic — deployed on Render
+- **Database:** PostgreSQL
+- **ML/Data:** scikit-learn (GradientBoostingClassifier), SHAP (explainability), Isolation Forest (anomaly detection), NetworkX (fraud graph clustering)
+- **AI Assistant:** Groq API (Llama 3.3 70B)
+- **Auth:** JWT + bcrypt
+
+---
+
+## Features by phase
+
+### Phase 1 — Foundation
+JWT authentication with role-based access (borrower / loan_officer / admin), business profile management, loan application and repayment schedule data model.
+
+### Phase 2 — Credit scoring & financial stress
+- **Credit risk scoring:** GradientBoostingClassifier trained on a public microfinance loan dataset (501 historical loans), with SHAP-based plain-language explanations for every prediction (e.g. "having a guarantor decreases risk").
+- **Financial stress score:** rule-based (not ML — no historical label exists to validate a model against), comparing estimated repayment burden against declared income and business maturity.
+
+### Phase 3 — Digital twin & cash-flow simulation
+Deterministic month-by-month cash-flow forecasting (`/simulation/forecast`) using a business's real repayment schedule, income estimate, and configurable growth/shock/expense assumptions. Supports side-by-side scenario comparison (`/simulation/compare`).
+
+### Phase 4 — Fraud detection
+Three complementary layers, combined into advisory (not auto-reject) flags:
+- **Rule-based checks:** rapid repeat applications, requested amount wildly inconsistent with income, guarantor already linked to a defaulted loan
+- **Graph-based clustering (NetworkX):** flags applications sharing a signup IP or guarantor phone number — a classic signature of a fraud ring
+- **Isolation Forest:** unsupervised anomaly detection against the live application pool (no fraud-labeled dataset exists, so no fraud *classifier* is claimed)
+
+### Phase 5 — Continuous monitoring
+Rule-based loan health tracking comparing predicted risk at origination against real repayment behavior — on_track / due_soon / overdue / paid_on_time / paid_late — with a dynamic risk score that adjusts based on actual payment history, and early-warning alerts for loan officers when a loan's real trajectory diverges from its original prediction.
+
+### Phase 6 — AI financial assistant
+A Groq-powered (Llama 3.3 70B) assistant that answers borrower and officer questions using their real data — risk score, stress score, fraud flags, loan health, and forecasts — formatted into plain-text context. No fabricated numbers; it only reasons over what's actually in the database.
+
+### Phase 7 — Advanced features
+- **Tamper-evident audit trail:** a hash-chained append-only log (`audit_log` table) recording key events — loan approvals/rejections, repayments, fraud flags. Each entry's hash incorporates the previous entry's hash, so any retroactive edit breaks the chain and is detectable via `/audit/verify`.
+- **Privacy-preserving data handling:** sensitive identifiers (like guarantor phone numbers) are salted-hashed before being written into the audit log, and a borrower-facing `/privacy` page explains what's collected, what's stored raw vs. hashed, and who can see what.
+- **Graph fraud detection refinement:** the shared-attribute fraud graph is exposed via `/fraud/graph` and visualized as an interactive force-directed graph on the officer dashboard, making fraud rings visually obvious rather than buried in a text flag.
+
+---
+
+## Project structure
