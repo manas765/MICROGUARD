@@ -14,6 +14,7 @@ from app.ml.inference import score_application
 from app.finance.stress_calc import calculate_stress
 from app.fraud.fraud_detection import assess_fraud, build_shared_attribute_graph
 from app.audit.audit_log import record_event
+from app.privacy.anonymize import hash_value
 
 router = APIRouter(prefix="/loans", tags=["loans"])
 
@@ -111,6 +112,7 @@ def apply_for_loan(
             "user_id": current_user.id,
             "risk_level": fraud_result["risk_level"],
             "flags": fraud_result["flags"],
+            "guarantor_phone_hash": hash_value(request.guarantor_phone) if request.guarantor_phone else None,
         })
 
     return {

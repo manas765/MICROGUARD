@@ -2,7 +2,7 @@ from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-
+from app.audit.audit_log import record_event
 from app.database import get_db
 from app.models.models import RepaymentSchedule, Loan, LoanApplication, BusinessProfile, User
 from app.dependencies import get_current_user
@@ -65,6 +65,14 @@ def mark_repaid(
     schedule.is_paid = True
     schedule.paid_at = datetime.utcnow()
     db.commit()
+
+    record_event(db, "repayment_marked_paid", {
+        "schedule_id": schedule.id,
+        "loan_id": schedule.loan.id,
+        "application_id": application.id,
+        "marked_by_user_id": current_user.id,
+        "amount_due": schedule.amount_due,
+    })
 
     return _build_alert_entry(schedule)
 

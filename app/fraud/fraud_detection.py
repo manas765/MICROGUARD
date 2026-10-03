@@ -65,13 +65,17 @@ def build_shared_attribute_graph(edges: list[tuple[str, str, int]]) -> nx.Graph:
         key = (attr_type, attr_value)
         by_attribute.setdefault(key, []).append(app_id)
 
-    for app_ids in by_attribute.values():
+    for (attr_type, attr_value), app_ids in by_attribute.items():
         for i in range(len(app_ids)):
             for j in range(i + 1, len(app_ids)):
-                graph.add_edge(app_ids[i], app_ids[j])
+                a, b = app_ids[i], app_ids[j]
+                if graph.has_edge(a, b):
+                    graph[a][b]["weight"] += 1
+                    graph[a][b]["shared_attributes"].append(attr_type)
+                else:
+                    graph.add_edge(a, b, weight=1, shared_attributes=[attr_type])
 
     return graph
-
 
 def check_cluster_size(graph: nx.Graph, application_id: int, size_threshold: int = 3) -> str | None:
     if application_id not in graph:
