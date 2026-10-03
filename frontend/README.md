@@ -1,4 +1,13 @@
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)
+![Vercel](https://img.shields.io/badge/Frontend-Vercel-black?logo=vercel)
+![Render](https://img.shields.io/badge/Backend-Render-46E3B7?logo=render&logoColor=white)
+![scikit-learn](https://img.shields.io/badge/scikit--learn-F7931E?logo=scikit-learn&logoColor=white)
+![Groq](https://img.shields.io/badge/AI-Groq%20Llama%203.3-orange)
+
 # MICROGUARD
+
 
 An AI-powered end-to-end microfinance platform covering credit scoring, business cash-flow simulation, fraud detection, continuous loan monitoring, an AI financial assistant, and a tamper-evident audit trail.
 
