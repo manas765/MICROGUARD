@@ -69,3 +69,46 @@ A Groq-powered (Llama 3.3 70B) assistant that answers borrower and officer quest
 ---
 
 ## Project structure
+
+
+---
+
+## Running locally
+
+**Backend:**
+```bash
+cd microguard
+python -m venv venv
+venv\Scripts\activate          # Windows
+pip install -r requirements.txt
+# set up a local PostgreSQL database and configure DATABASE_URL
+uvicorn app.main:app --reload
+```
+
+**Frontend:**
+```bash
+cd microguard/frontend
+npm install
+npm run dev
+```
+
+Environment variables needed:
+- Backend: `DATABASE_URL`, `GROQ_API_KEY`, `PYTHON_VERSION=3.11.9` (for deployment)
+- Frontend: `VITE_API_URL` (points to the backend)
+
+---
+
+## API documentation
+
+Full interactive API docs (Swagger UI) are available at `/docs` on the running backend — see the live link above.
+
+---
+
+## Notes on design philosophy
+
+Every "AI" or "scoring" component in this project is built to match what the data actually supports:
+- Credit risk scoring is a real trained classifier, because labeled historical outcome data exists.
+- Financial stress, cash-flow forecasting, and loan health monitoring are deterministic rule-based logic — not fabricated ML models — because no historical label exists to validate a model against.
+- Fraud detection combines transparent rules, graph clustering, and unsupervised anomaly detection — deliberately not a trained fraud *classifier*, since no fraud-labeled dataset exists.
+
+This was a conscious choice to keep every claim in the system honest rather than impressive-sounding but unfounded.
