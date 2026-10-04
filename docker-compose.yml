@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: microguard
+      POSTGRES_PASSWORD: microguard
+      POSTGRES_DB: microguard
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  backend:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql+psycopg2://microguard:microguard@db:5432/microguard
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      PYTHON_VERSION: "3.11.9"
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+
+volumes:
+  pgdata:

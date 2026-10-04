@@ -26,6 +26,55 @@ Every scoring/analysis component is built honestly for what the data supports �
 
 ---
 
+## Architecture
+
+```mermaid
+graph TD
+    subgraph Client
+        A[React Frontend<br/>Vercel]
+    end
+
+    subgraph API["FastAPI Backend (Render)"]
+        B[Auth & Users]
+        C[Loans & Applications]
+        D[Monitoring]
+        E[Simulation / Digital Twin]
+        F[AI Assistant]
+        G[Audit Trail]
+        H[Fraud Detection]
+    end
+
+    subgraph ML["ML / Logic Layer"]
+        I[Credit Risk Model<br/>GradientBoosting + SHAP]
+        J[Financial Stress<br/>rule-based]
+        K[Fraud Rules + NetworkX<br/>+ Isolation Forest]
+    end
+
+    subgraph External
+        L[Groq API<br/>Llama 3.3 70B]
+        M[(PostgreSQL)]
+    end
+
+    A -->|REST / JWT| B
+    A --> C
+    A --> D
+    A --> E
+    A --> F
+    A --> G
+    A --> H
+
+    C --> I
+    C --> J
+    C --> H
+    H --> K
+    F --> L
+
+    B --> M
+    C --> M
+    D --> M
+    G --> M
+```
+
 ## Tech stack
 
 - **Frontend:** React (Vite), Tailwind CSS, Recharts, React Router — deployed on Vercel
@@ -112,3 +161,20 @@ Every "AI" or "scoring" component in this project is built to match what the dat
 - Fraud detection combines transparent rules, graph clustering, and unsupervised anomaly detection — deliberately not a trained fraud *classifier*, since no fraud-labeled dataset exists.
 
 This was a conscious choice to keep every claim in the system honest rather than impressive-sounding but unfounded.
+
+## Model card — Credit Risk Scorer
+
+**Model type:** Gradient Boosting Classifier (scikit-learn), with SHAP for per-prediction explainability
+
+**Training data:** A public microfinance loan dataset — 501 historical loan records with known outcomes (repaid vs. defaulted/collection)
+
+**Features used:** Requested amount, loan term (days), applicant age, gender, education level, guarantor status
+
+**Performance:** [fill in your actual CV accuracy / ROC-AUC from training here — check your training script's output or metadata.json]
+
+**Known limitations:**
+- 501 rows is a small training set by ML standards — the model's confidence output (`low`/`medium`/`high`) deliberately reflects this, flagging low confidence for applicants whose age or requested amount falls outside the bulk of the training distribution
+- The dataset's demographic composition (age range, gender split, education categories) may not reflect every real-world applicant population — predictions for underrepresented groups in the training data should be treated with extra caution
+- This is a portfolio/demonstration model, not a production-validated credit scoring system — it has not been audited for fairness, disparate impact, or regulatory compliance (e.g. fair lending laws), which would be required before any real-world lending use
+
+**Why not a bigger/fancier model:** The honesty goal of this project was to only claim what the data supports. A larger ensemble or deep model would not meaningfully outperform gradient boosting on 501 rows, and would reduce interpretability — which matters more here than marginal accuracy gains, especially paired with SHAP explanations.
