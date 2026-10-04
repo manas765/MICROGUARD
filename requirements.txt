@@ -15,4 +15,7 @@ joblib
 openpyxl
 networkx
 groq
+pytest
+pytest-cov
+
 
