@@ -106,8 +106,8 @@ def apply_for_loan(
     application.fraud_risk_level = fraud_result["risk_level"]
     db.commit()
 
-    if fraud_result["risk_level"] in ("Medium", "High"):
-        record_event(db, "fraud_flag_raised", {
+    if fraud_result["risk_level"] in ("medium", "high"):
+         record_event(db, "fraud_flag_raised", {
             "application_id": application.id,
             "user_id": current_user.id,
             "risk_level": fraud_result["risk_level"],
